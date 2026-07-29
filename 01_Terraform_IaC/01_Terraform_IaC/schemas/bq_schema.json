@@ -1,0 +1,44 @@
+[
+  {
+    "name": "student_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "UUIDv4 student identifier"
+  },
+  {
+    "name": "guardian_email",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "RFC-valid email of the guardian"
+  },
+  {
+    "name": "has_diagnosis_on_file",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Exact Y or N flag"
+  },
+  {
+    "name": "guardian_consent_given",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Must be Y to proceed"
+  },
+  {
+    "name": "requires_lsa_support",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Exact Y or N flag"
+  },
+  {
+    "name": "assigned_region_owner",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Email address driving BigQuery RLS"
+  },
+  {
+    "name": "submitted_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "Timestamp when record was processed"
+  }
+]

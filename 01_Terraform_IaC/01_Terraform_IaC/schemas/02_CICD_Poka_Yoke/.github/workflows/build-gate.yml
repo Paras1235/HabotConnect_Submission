@@ -1,0 +1,53 @@
+name: Poka-Yoke Fail-Closed Build Gate
+
+on:
+  push:
+    branches: [ "main", "staging" ]
+  pull_request:
+    branches: [ "main", "staging" ]
+
+jobs:
+  fail-closed-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # --- GATE 1: LINT & FORMAT ---
+      - name: Gate 1 - Lint & Format (Black, Flake8, Terraform)
+        run: |
+          pip install black flake8
+          echo "Running Black formatting check..."
+          black --check --diff .
+          echo "Running Flake8 lint check..."
+          flake8 . --max-line-length=100
+          echo "Running Terraform validation..."
+          cd 01_Terraform_IaC/
+          terraform fmt -check -recursive
+          terraform init -backend=false
+          terraform validate
+
+      # --- GATE 2: SECRET & SECURITY SCAN ---
+      - name: Gate 2 - Secret & Security Scan (Gitleaks & Bandit)
+        run: |
+          pip install bandit
+          # Install Gitleaks
+          GITLEAKS_VERSION="8.18.2"
+          wget https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz
+          tar -xzf gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz
+          
+          echo "Running Gitleaks audit across full commit history..."
+          ./gitleaks detect --redact --verbose
+          
+          echo "Running Bandit Python Security Lint..."
+          bandit -ll -r 03_DCYN_Schema_Validation/
